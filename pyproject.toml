@@ -16,5 +16,6 @@ dependencies = [
     "oauth2client>=4.1.3",
     "opencv-python>=4.11.0.86",
     "pip>=25.2",
+    "pytz>=2025.2",
     "requests>=2.32.5",
 ]

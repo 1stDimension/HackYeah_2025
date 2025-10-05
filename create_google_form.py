@@ -133,13 +133,52 @@ def create_or_update_form(title: str, bodies: list[dict[str, Any]], form_id_file
         return new_form['responderUri']
 
 if __name__ == "__main__":
+    # Please install pytz and Faker if you haven't already: pip install pytz Faker
+    import json
+    import random
+    from datetime import datetime, timedelta
+    import pytz
 
-    fake_bodies = [
-        {"title": "What is your name?", "required": True},
-        {"title": "How old are you"},
-        {"title": "What is your email address?", "required": True},
+    fake = Faker('pl_PL')
+    warsaw_tz = pytz.timezone("Europe/Warsaw")
+
+    base_questions = [
+        {"title": "Jak masz na imię?", "required": True},
+        {"title": "Ile masz lat?"},
+        {"title": "Jaki jest Twój adres e-mail?", "required": True},
     ]
-    
+
     for i in range(10):
-        form_title = f"My Awesome Form nr{i+1}"
-        url = create_or_update_form(form_title, fake_bodies)
+        form_type = random.choice(["Wolontariat", "Staż"])
+        
+        job_title = fake.job()
+        if form_type == "Wolontariat":
+            form_title = f"Aplikacja na wolontariat: {job_title}"
+            additional_questions = [
+                {"title": "Dlaczego chcesz być wolontariuszem w naszej organizacji?", "paragraph": True, "required": True},
+                {"title": "Jakie umiejętności możesz wnieść do naszego zespołu?", "paragraph": True},
+            ]
+        else: # Staż
+            form_title = f"Aplikacja na staż: {job_title}"
+            additional_questions = [
+                {"title": "Jakie jest Twoje pole studiów?", "required": True},
+                {"title": "Proszę wymienić swoje umiejętności i doświadczenie.", "paragraph": True},
+                {"title": "Jakie są Twoje cele zawodowe?", "paragraph": True, "required": True},
+            ]
+
+        all_questions = base_questions + additional_questions
+        
+        form_id_file = f"form_id_{i}.txt"
+        form_url = create_or_update_form(form_title, all_questions, form_id_file)
+
+        start_date = datetime.now(warsaw_tz) + timedelta(days=random.randint(7, 30))
+        end_date = start_date + timedelta(days=random.randint(60, 120))
+
+        form_data = {
+            "url": form_url,
+            "description": f"To jest formularz aplikacyjny na: {form_title}",
+            "start_date": start_date.isoformat(),
+            "end_date": end_date.isoformat(),
+        }
+
+        print(json.dumps(form_data, indent=4, ensure_ascii=False))
