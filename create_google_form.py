@@ -1,4 +1,3 @@
-
 import os
 from typing import Any
 from faker import Faker
@@ -19,6 +18,7 @@ cred_path = (
     Path(os.getcwd()) / ".." / "client_secret.apps.googleusercontent.com.json"
 ).resolve()
 
+
 def get_credentials(c_path: os.PathLike):
     """Gets user credentials from a local file."""
     creds = None
@@ -34,7 +34,10 @@ def get_credentials(c_path: os.PathLike):
             token.write(creds.to_json())
     return creds
 
-def create_or_update_form(title: str, bodies: list[dict[str, Any]], form_id_file="form_id.txt"):
+
+def create_or_update_form(
+    title: str, bodies: list[dict[str, Any]], form_id_file="form_id.txt"
+):
     """Creates a new Google Form or updates an existing one."""
     creds = get_credentials(cred_path)
     form_service = build("forms", "v1", credentials=creds)
@@ -55,16 +58,15 @@ def create_or_update_form(title: str, bodies: list[dict[str, Any]], form_id_file
             if items:
                 for _ in range(len(items)):
                     requests.append({"deleteItem": {"location": {"index": 0}}})
-            
-            # Update title
-            requests.append({
-                "updateFormInfo": {
-                    "info": {"title": title},
-                    "updateMask": "title"
-                }
-            })
 
-            form_service.forms().batchUpdate(formId=form_id, body={"requests": requests}).execute()
+            # Update title
+            requests.append(
+                {"updateFormInfo": {"info": {"title": title}, "updateMask": "title"}}
+            )
+
+            form_service.forms().batchUpdate(
+                formId=form_id, body={"requests": requests}
+            ).execute()
 
             # Add new questions
             requests = []
@@ -77,7 +79,9 @@ def create_or_update_form(title: str, bodies: list[dict[str, Any]], form_id_file
                                 "questionItem": {
                                     "question": {
                                         "required": body.get("required", False),
-                                        "textQuestion": {"paragraph": body.get("paragraph", False)},
+                                        "textQuestion": {
+                                            "paragraph": body.get("paragraph", False)
+                                        },
                                     }
                                 },
                             },
@@ -85,10 +89,12 @@ def create_or_update_form(title: str, bodies: list[dict[str, Any]], form_id_file
                         }
                     }
                 )
-            
-            form_service.forms().batchUpdate(formId=form_id, body={"requests": requests}).execute()
-            
-            return form['responderUri']
+
+            form_service.forms().batchUpdate(
+                formId=form_id, body={"requests": requests}
+            ).execute()
+
+            return form["responderUri"]
 
         except HttpError as e:
             if e.resp.status == 404:
@@ -115,7 +121,9 @@ def create_or_update_form(title: str, bodies: list[dict[str, Any]], form_id_file
                             "questionItem": {
                                 "question": {
                                     "required": body.get("required", False),
-                                    "textQuestion": {"paragraph": body.get("paragraph", False)},
+                                    "textQuestion": {
+                                        "paragraph": body.get("paragraph", False)
+                                    },
                                 }
                             },
                         },
@@ -129,7 +137,8 @@ def create_or_update_form(title: str, bodies: list[dict[str, Any]], form_id_file
             formId=form_id, body=question_setting
         ).execute()
 
-        return new_form['responderUri']
+        return new_form["responderUri"]
+
 
 if __name__ == "__main__":
     # Please install pytz and Faker if you haven't already: pip install pytz Faker
@@ -137,7 +146,7 @@ if __name__ == "__main__":
     from datetime import datetime, timedelta
     import pytz
 
-    fake = Faker('pl_PL')
+    fake = Faker("pl_PL")
     warsaw_tz = pytz.timezone("Europe/Warsaw")
 
     base_questions = [
@@ -146,31 +155,45 @@ if __name__ == "__main__":
         {"title": "Jaki jest Twój adres e-mail?", "required": True},
     ]
 
-    output_file = 'forms.jsonl'
+    output_file = "forms.jsonl"
     # Clear the file at the beginning of the run
-    with open(output_file, 'w') as f:
+    with open(output_file, "w") as f:
         pass
 
     for i in range(10):
         form_type = random.choice(["Wolontariat", "Staż"])
-        
+
         job_title = fake.job()
         if form_type == "Wolontariat":
             form_title = f"Aplikacja na wolontariat: {job_title}"
             additional_questions = [
-                {"title": "Dlaczego chcesz być wolontariuszem w naszej organizacji?", "paragraph": True, "required": True},
-                {"title": "Jakie umiejętności możesz wnieść do naszego zespołu?", "paragraph": True},
+                {
+                    "title": "Dlaczego chcesz być wolontariuszem w naszej organizacji?",
+                    "paragraph": True,
+                    "required": True,
+                },
+                {
+                    "title": "Jakie umiejętności możesz wnieść do naszego zespołu?",
+                    "paragraph": True,
+                },
             ]
-        else: # Staż
+        else:  # Staż
             form_title = f"Aplikacja na staż: {job_title}"
             additional_questions = [
                 {"title": "Jakie jest Twoje pole studiów?", "required": True},
-                {"title": "Proszę wymienić swoje umiejętności i doświadczenie.", "paragraph": True},
-                {"title": "Jakie są Twoje cele zawodowe?", "paragraph": True, "required": True},
+                {
+                    "title": "Proszę wymienić swoje umiejętności i doświadczenie.",
+                    "paragraph": True,
+                },
+                {
+                    "title": "Jakie są Twoje cele zawodowe?",
+                    "paragraph": True,
+                    "required": True,
+                },
             ]
 
         all_questions = base_questions + additional_questions
-        
+
         form_id_file = f"form_id_{i}.txt"
         form_url = create_or_update_form(form_title, all_questions, form_id_file)
 
@@ -192,13 +215,22 @@ if __name__ == "__main__":
     animal_shelter_questions = [
         {"title": "Czy masz doświadczenie w pracy ze zwierzętami?", "paragraph": True},
         {"title": "Czy jesteś alergikiem? Jeśli tak, na co?", "paragraph": True},
-        {"title": "W jakie dni i w jakich godzinach jesteś dyspozycyjny/a?", "paragraph": True, "required": True},
-        {"title": "Czy masz jakieś obawy przed pracą ze zwierzętami po przejściach?", "paragraph": True},
+        {
+            "title": "W jakie dni i w jakich godzinach jesteś dyspozycyjny/a?",
+            "paragraph": True,
+            "required": True,
+        },
+        {
+            "title": "Czy masz jakieś obawy przed pracą ze zwierzętami po przejściach?",
+            "paragraph": True,
+        },
     ]
     all_questions_shelter = base_questions + animal_shelter_questions
 
     form_id_file_shelter = "form_id_animal_shelter.txt"
-    form_url_shelter = create_or_update_form(form_title_shelter, all_questions_shelter, form_id_file_shelter)
+    form_url_shelter = create_or_update_form(
+        form_title_shelter, all_questions_shelter, form_id_file_shelter
+    )
 
     start_date_shelter = datetime.now(warsaw_tz) + timedelta(days=random.randint(7, 30))
     end_date_shelter = start_date_shelter + timedelta(days=random.randint(60, 120))
