@@ -7,6 +7,7 @@ from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 import jsonl
+from src.google_calendar_dataclasses import CalendarListEntry
 
 # If modifying these SCOPES, delete the file token.json.
 SCOPES = ["https://www.googleapis.com/auth/forms.body"]
@@ -18,6 +19,7 @@ cred_path = (
     Path(os.getcwd()) / ".." / "client_secret.apps.googleusercontent.com.json"
 ).resolve()
 
+CALENDAR_ID = os.environ["CALENDAR_ID"]
 
 def get_credentials(c_path: os.PathLike):
     """Gets user credentials from a local file."""
@@ -141,6 +143,16 @@ def create_or_update_form(
 
 
 if __name__ == "__main__":
+    creds = get_credentials(cred_path)
+    calendarService = build("calendar", "v3", credentials=creds)
+    calendar = CalendarListEntry.from_dict(
+        calendarService.calendarList()
+        .get(
+            calendarId=CALENDAR_ID
+        )
+        .execute()
+    )
+    
     # Please install pytz and Faker if you haven't already: pip install pytz Faker
     import random
     from datetime import datetime, timedelta
