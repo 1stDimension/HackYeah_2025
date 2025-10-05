@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Search Widget Demo</title>
+    <title>Demo Widget Wyszukiwania</title>
     <style>
         * {
             margin: 0;
@@ -126,50 +126,50 @@
 </head>
 <body>
     <div class="container">
-        <h1>🔍 Search Widget Demo</h1>
+        <h1>🔍 Cyfrowe Centrum Wolontariatu</h1>
         <p class="description">
-            This demo integrates Google's Gen App Builder Search Widget. 
-            Click on the search input below to activate the widget.
+            To demo integruje Widget Wyszukiwania Google Gen App Builder. 
+            Kliknij na pole wyszukiwania poniżej, aby aktywować widget.
         </p>
 
         <div class="search-container">
-            <!-- Search widget trigger input -->
+            <!-- Pole uruchamiające widget wyszukiwania -->
             <input 
                 type="text" 
-                placeholder="Click here to search..." 
+                placeholder="Kliknij tutaj, aby wyszukać..." 
                 id="searchWidgetTrigger" 
                 readonly
             />
         </div>
 
         <div class="info-section">
-            <h2 class="info-title">How it works:</h2>
+            <h2 class="info-title">Jak to działa:</h2>
             <ul class="info-list">
-                <li>The search widget is loaded but hidden by default</li>
-                <li>Clicking the input field triggers the widget to appear</li>
-                <li>The widget connects to Google's Gen App Builder service</li>
-                <li>Search results are powered by the configured search engine</li>
+                <li>Widget wyszukiwania jest załadowany, ale domyślnie ukryty</li>
+                <li>Kliknięcie w pole tekstowe powoduje wyświetlenie widgetu</li>
+                <li>Widget łączy się z usługą Google Gen App Builder</li>
+                <li>Wyniki wyszukiwania są obsługiwane przez skonfigurowaną wyszukiwarkę</li>
             </ul>
         </div>
 
         <div class="info-section">
-            <h2 class="info-title">Widget Configuration:</h2>
+            <h2 class="info-title">Konfiguracja widgetu:</h2>
             <ul class="info-list">
-                <li>Config ID: c59c27ad-6337-4414-8b84-ce8ee9e9c69f</li>
-                <li>Location: EU region</li>
-                <li>Trigger: #searchWidgetTrigger element</li>
+                <li>ID konfiguracji: c59c27ad-6337-4414-8b84-ce8ee9e9c69f</li>
+                <li>Lokalizacja: region EU</li>
+                <li>Wyzwalacz: element #searchWidgetTrigger</li>
             </ul>
         </div>
     </div>
 
     <footer class="footer">
-        <p>Powered by <a href="https://cloud.google.com/generative-ai-app-builder" target="_blank">Google Gen App Builder</a></p>
+        <p>Obsługiwane przez <a href="https://cloud.google.com/generative-ai-app-builder" target="_blank">Google Gen App Builder</a></p>
     </footer>
 
-    <!-- Google Gen App Builder Search Widget JavaScript -->
+    <!-- JavaScript Widget Wyszukiwania Google Gen App Builder -->
     <script src="https://cloud.google.com/ai/gen-app-builder/client?hl=en_US"></script>
 
-    <!-- Search widget element (hidden by default) -->
+    <!-- Element widgetu wyszukiwania (domyślnie ukryty) -->
     <gen-search-widget
         configId="c59c27ad-6337-4414-8b84-ce8ee9e9c69f"
         location="eu"
