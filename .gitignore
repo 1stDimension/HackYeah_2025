@@ -1,4 +1,6 @@
 token.json
+event_id_*
+form_id_*
 # User defined
 .env
 

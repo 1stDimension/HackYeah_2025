@@ -46,7 +46,6 @@ def create_or_update_form(
     title: str, bodies: list[dict[str, Any]], form_id_file="form_id.txt"
 ):
     """Creates a new Google Form or updates an existing one."""
-    # This function remains the same
     creds = get_credentials(cred_path)
     form_service = build("forms", "v1", credentials=creds)
     form_id = None
@@ -55,7 +54,7 @@ def create_or_update_form(
         with open(form_id_file, "r") as f:
             form_id = f.read().strip()
 
-    if form_id == 0:
+    if form_id:
         try:
             form = form_service.forms().get(formId=form_id).execute()
             print(f"Form {form_id} already exists. Updating it.")
@@ -72,9 +71,10 @@ def create_or_update_form(
                 {"updateFormInfo": {"info": {"title": title}, "updateMask": "title"}}
             )
 
-            form_service.forms().batchUpdate(
-                formId=form_id, body={"requests": requests}
-            ).execute()
+            if requests:
+                form_service.forms().batchUpdate(
+                    formId=form_id, body={"requests": requests}
+                ).execute()
 
             # Add new questions
             requests = []
@@ -98,9 +98,10 @@ def create_or_update_form(
                     }
                 )
 
-            form_service.forms().batchUpdate(
-                formId=form_id, body={"requests": requests}
-            ).execute()
+            if requests:
+                form_service.forms().batchUpdate(
+                    formId=form_id, body={"requests": requests}
+                ).execute()
 
             return form["responderUri"]
         except HttpError as e:
@@ -139,10 +140,11 @@ def create_or_update_form(
                 }
             )
 
-        question_setting = {"requests": requests}
-        form_service.forms().batchUpdate(
-            formId=form_id, body=question_setting
-        ).execute()
+        if requests:
+            question_setting = {"requests": requests}
+            form_service.forms().batchUpdate(
+                formId=form_id, body=question_setting
+            ).execute()
 
         return new_form["responderUri"]
 
@@ -217,18 +219,10 @@ if __name__ == "__main__":
         {"title": "Jaki jest Twój adres e-mail?", "required": True},
     ]
 
-    output_file = "forms.jsonl"
-    with open(output_file, "w") as f:
-        pass
-
-    created_event_ids = []
-
-    for i in range(10):
-        form_type = random.choice(["Wolontariat", "Staż"])
-        job_title = fake.job()
-        if form_type == "Wolontariat":
-            form_title = f"Aplikacja na wolontariat: {job_title}"
-            additional_questions = [
+    form_types = {
+        "Wolontariat": {
+            "title_template": "Aplikacja na wolontariat: {}",
+            "questions": [
                 {
                     "title": "Dlaczego chcesz być wolontariuszem w naszej organizacji?",
                     "paragraph": True,
@@ -238,10 +232,11 @@ if __name__ == "__main__":
                     "title": "Jakie umiejętności możesz wnieść do naszego zespołu?",
                     "paragraph": True,
                 },
-            ]
-        else:  # Staż
-            form_title = f"Aplikacja na staż: {job_title}"
-            additional_questions = [
+            ],
+        },
+        "Staż": {
+            "title_template": "Aplikacja na staż: {}",
+            "questions": [
                 {"title": "Jakie jest Twoje pole studiów?", "required": True},
                 {
                     "title": "Proszę wymienić swoje umiejętności i doświadczenie.",
@@ -252,19 +247,105 @@ if __name__ == "__main__":
                     "paragraph": True,
                     "required": True,
                 },
-            ]
+            ],
+        },
+        "Praca": {
+            "title_template": "Aplikacja o pracę: {}",
+            "questions": [
+                {
+                    "title": "Jakie jest Twoje doświadczenie zawodowe?",
+                    "paragraph": True,
+                    "required": True,
+                },
+                {"title": "Jakie są Twoje oczekiwania finansowe?", "required": True},
+                {
+                    "title": "Dlaczego chcesz pracować w naszej firmie?",
+                    "paragraph": True,
+                },
+            ],
+        },
+        "Praktyki": {
+            "title_template": "Aplikacja na praktyki: {}",
+            "questions": [
+                {
+                    "title": "W jakiej dziedzinie chciałbyś/chciałabyś odbyć praktyki?",
+                    "required": True,
+                },
+                {"title": "Jaki jest Twój poziom znajomości języka angielskiego?"},
+                {"title": "Czy posiadasz własny laptop?", "required": True},
+            ],
+        },
+        "Wolontariat w schronisku dla zwierząt": {
+            "title_template": "Wolontariat w schronisku dla zwierząt",
+            "questions": [
+                {
+                    "title": "Czy masz doświadczenie w pracy ze zwierzętami?",
+                    "paragraph": True,
+                },
+                {
+                    "title": "Czy jesteś alergikiem? Jeśli tak, na co?",
+                    "paragraph": True,
+                },
+                {
+                    "title": "W jakie dni i w jakich godzinach jesteś dyspozycyjny/a?",
+                    "paragraph": True,
+                    "required": True,
+                },
+                {
+                    "title": "Czy masz jakieś obawy przed pracą ze zwierzętami po przejściach?",
+                    "paragraph": True,
+                },
+            ],
+        },
+    }
 
+    output_file = "forms.jsonl"
+    with open(output_file, "w") as f:
+        pass
+
+    created_event_ids = []
+
+    form_keys = list(form_types.keys())
+    forms_to_create = random.choices(form_keys[:-1], k=10) + [
+        "Wolontariat w schronisku dla zwierząt"
+    ]
+    random.shuffle(forms_to_create)
+
+    regular_form_counter = 0
+    for form_key in forms_to_create:
+        form_details = form_types[form_key]
+        job_title = fake.job()
+
+        if "{}" in form_details["title_template"]:
+            form_title = form_details["title_template"].format(job_title)
+        else:
+            form_title = form_details["title_template"]
+
+        additional_questions = form_details["questions"]
         all_questions = base_questions + additional_questions
-        form_id_file = f"form_id_{i}.txt"
+
+        if form_key == "Wolontariat w schronisku dla zwierząt":
+            form_id_file = "form_id_animal_shelter.txt"
+            event_id_file = "event_id_animal_shelter.txt"
+        else:
+            form_id_file = f"form_id_{regular_form_counter}.txt"
+            event_id_file = f"event_id_{regular_form_counter}.txt"
+            regular_form_counter += 1
+
         form_url = create_or_update_form(form_title, all_questions, form_id_file)
 
         start_date = datetime.now(warsaw_tz) + timedelta(days=random.randint(7, 30))
         end_date = start_date + timedelta(days=random.randint(60, 120))
 
+        description = (
+            f"To jest formularz aplikacyjny na: {form_title}. "
+            f"{fake.paragraph(nb_sentences=2)}"
+        )
+
         form_data = {
             "url": form_url,
             "title": form_title,
-            "description": f"To jest formularz aplikacyjny na: {form_title}",
+            "description": description,
             "start_date": start_date.isoformat(),
             "end_date": end_date.isoformat(),
         }
@@ -272,55 +353,11 @@ if __name__ == "__main__":
         jsonl.add(form_data, output_file)
         print(f"Appended data for '{form_title}' to {output_file}")
 
-        event_id_file = f"event_id_{i}.txt"
         event_id = create_or_update_event(
             calendar_service, CALENDAR_ID, form_data, event_id_file
         )
         if event_id:
             created_event_ids.append(event_id)
-
-    # Form for animal shelter
-    form_title_shelter = "Wolontariat w schronisku dla zwierząt"
-    animal_shelter_questions = [
-        {"title": "Czy masz doświadczenie w pracy ze zwierzętami?", "paragraph": True},
-        {"title": "Czy jesteś alergikiem? Jeśli tak, na co?", "paragraph": True},
-        {
-            "title": "W jakie dni i w jakich godzinach jesteś dyspozycyjny/a?",
-            "paragraph": True,
-            "required": True,
-        },
-        {
-            "title": "Czy masz jakieś obawy przed pracą ze zwierzętami po przejściach?",
-            "paragraph": True,
-        },
-    ]
-    all_questions_shelter = base_questions + animal_shelter_questions
-
-    form_id_file_shelter = "form_id_animal_shelter.txt"
-    form_url_shelter = create_or_update_form(
-        form_title_shelter, all_questions_shelter, form_id_file_shelter
-    )
-
-    start_date_shelter = datetime.now(warsaw_tz) + timedelta(days=random.randint(7, 30))
-    end_date_shelter = start_date_shelter + timedelta(days=random.randint(60, 120))
-
-    form_data_shelter = {
-        "url": form_url_shelter,
-        "title": form_title_shelter,
-        "description": "To jest formularz dla wolontariuszy w schronisku dla zwierząt.",
-        "start_date": start_date_shelter.isoformat(),
-        "end_date": end_date_shelter.isoformat(),
-    }
-
-    jsonl.add(form_data_shelter, output_file)
-    print(f"Appended data for '{form_title_shelter}' to {output_file}")
-
-    event_id_file_shelter = "event_id_animal_shelter.txt"
-    event_id_shelter = create_or_update_event(
-        calendar_service, CALENDAR_ID, form_data_shelter, event_id_file_shelter
-    )
-    if event_id_shelter:
-        created_event_ids.append(event_id_shelter)
 
     # Add attendee to all created events
     attendee_email = "enter@example.com"
