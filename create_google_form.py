@@ -87,7 +87,7 @@ def create_or_update_form(title: str, bodies: list[dict[str, Any]], form_id_file
             
             form_service.forms().batchUpdate(formId=form_id, body={"requests": requests}).execute()
             
-            print(f"Form updated successfully! View it at: {form['responderUri']}")
+            # print(f"Form updated successfully! View it at: {form['responderUri']}")
             return form['responderUri']
 
         except HttpError as e:
@@ -129,7 +129,6 @@ def create_or_update_form(title: str, bodies: list[dict[str, Any]], form_id_file
             formId=form_id, body=question_setting
         ).execute()
 
-        print(f"Form created successfully! View it at: {new_form['responderUri']}")
         return new_form['responderUri']
 
 if __name__ == "__main__":
@@ -182,3 +181,28 @@ if __name__ == "__main__":
         }
 
         print(json.dumps(form_data, indent=4, ensure_ascii=False))
+
+    # Form for animal shelter
+    form_title_shelter = "Wolontariat w schronisku dla zwierząt"
+    animal_shelter_questions = [
+        {"title": "Czy masz doświadczenie w pracy ze zwierzętami?", "paragraph": True},
+        {"title": "Czy jesteś alergikiem? Jeśli tak, na co?", "paragraph": True},
+        {"title": "W jakie dni i w jakich godzinach jesteś dyspozycyjny/a?", "paragraph": True, "required": True},
+        {"title": "Czy masz jakieś obawy przed pracą ze zwierzętami po przejściach?", "paragraph": True},
+    ]
+    all_questions_shelter = base_questions + animal_shelter_questions
+
+    form_id_file_shelter = "form_id_animal_shelter.txt"
+    form_url_shelter = create_or_update_form(form_title_shelter, all_questions_shelter, form_id_file_shelter)
+
+    start_date_shelter = datetime.now(warsaw_tz) + timedelta(days=random.randint(7, 30))
+    end_date_shelter = start_date_shelter + timedelta(days=random.randint(60, 120))
+
+    form_data_shelter = {
+        "url": form_url_shelter,
+        "description": "To jest formularz dla wolontariuszy w schronisku dla zwierząt.",
+        "start_date": start_date_shelter.isoformat(),
+        "end_date": end_date_shelter.isoformat(),
+    }
+
+    print(json.dumps(form_data_shelter, indent=4, ensure_ascii=False))
