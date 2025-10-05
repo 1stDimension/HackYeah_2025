@@ -7,19 +7,24 @@ from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 import jsonl
-from src.google_calendar_dataclasses import CalendarListEntry
+import random
+from datetime import datetime, timedelta
+import pytz
 
 # If modifying these SCOPES, delete the file token.json.
-SCOPES = ["https://www.googleapis.com/auth/forms.body"]
+SCOPES = [
+    "https://www.googleapis.com/auth/calendar",
+    "https://www.googleapis.com/auth/forms.body",
+]
 
 from pathlib import Path
-import os
 
 cred_path = (
     Path(os.getcwd()) / ".." / "client_secret.apps.googleusercontent.com.json"
 ).resolve()
 
-CALENDAR_ID = os.environ["CALENDAR_ID"]
+CALENDAR_ID = os.environ.get("CALENDAR_ID", "primary")
+
 
 def get_credentials(c_path: os.PathLike):
     """Gets user credentials from a local file."""
@@ -41,6 +46,7 @@ def create_or_update_form(
     title: str, bodies: list[dict[str, Any]], form_id_file="form_id.txt"
 ):
     """Creates a new Google Form or updates an existing one."""
+    # This function remains the same
     creds = get_credentials(cred_path)
     form_service = build("forms", "v1", credentials=creds)
     form_id = None
@@ -49,7 +55,7 @@ def create_or_update_form(
         with open(form_id_file, "r") as f:
             form_id = f.read().strip()
 
-    if form_id:
+    if form_id == 0:
         try:
             form = form_service.forms().get(formId=form_id).execute()
             print(f"Form {form_id} already exists. Updating it.")
@@ -97,7 +103,6 @@ def create_or_update_form(
             ).execute()
 
             return form["responderUri"]
-
         except HttpError as e:
             if e.resp.status == 404:
                 print("Form not found. Creating a new one.")
@@ -142,21 +147,63 @@ def create_or_update_form(
         return new_form["responderUri"]
 
 
+def create_or_update_event(calendar_service, calendar_id, event_data, event_id_file):
+    """Creates a new Google Calendar event or updates an existing one."""
+    event_id = None
+    if os.path.exists(event_id_file):
+        with open(event_id_file, "r") as f:
+            event_id = f.read().strip()
+
+    event_body = {
+        "summary": event_data["title"],
+        "description": event_data["description"],
+        "start": {
+            "dateTime": event_data["start_date"],
+            "timeZone": "Europe/Warsaw",
+        },
+        "end": {
+            "dateTime": event_data["end_date"],
+            "timeZone": "Europe/Warsaw",
+        },
+    }
+
+    try:
+        if event_id:
+            updated_event = (
+                calendar_service.events()
+                .update(calendarId=calendar_id, eventId=event_id, body=event_body)
+                .execute()
+            )
+            print(f"Event {updated_event['id']} updated.")
+        else:
+            new_event = (
+                calendar_service.events()
+                .insert(calendarId=calendar_id, body=event_body)
+                .execute()
+            )
+            event_id = new_event["id"]
+            with open(event_id_file, "w") as f:
+                f.write(event_id)
+            print(f"Event {event_id} created.")
+    except HttpError as e:
+        if e.resp.status == 404:
+            print("Event not found, creating a new one.")
+            new_event = (
+                calendar_service.events()
+                .insert(calendarId=calendar_id, body=event_body)
+                .execute()
+            )
+            event_id = new_event["id"]
+            with open(event_id_file, "w") as f:
+                f.write(event_id)
+            print(f"Event {event_id} created.")
+        else:
+            raise e
+
+
 if __name__ == "__main__":
     creds = get_credentials(cred_path)
-    calendarService = build("calendar", "v3", credentials=creds)
-    calendar = CalendarListEntry.from_dict(
-        calendarService.calendarList()
-        .get(
-            calendarId=CALENDAR_ID
-        )
-        .execute()
-    )
-    
-    # Please install pytz and Faker if you haven't already: pip install pytz Faker
-    import random
-    from datetime import datetime, timedelta
-    import pytz
+    calendar_service = build("calendar", "v3", credentials=creds)
 
     fake = Faker("pl_PL")
     warsaw_tz = pytz.timezone("Europe/Warsaw")
@@ -168,13 +215,11 @@ if __name__ == "__main__":
     ]
 
     output_file = "forms.jsonl"
-    # Clear the file at the beginning of the run
     with open(output_file, "w") as f:
         pass
 
     for i in range(10):
         form_type = random.choice(["Wolontariat", "Staż"])
-
         job_title = fake.job()
         if form_type == "Wolontariat":
             form_title = f"Aplikacja na wolontariat: {job_title}"
@@ -205,7 +250,6 @@ if __name__ == "__main__":
             ]
 
         all_questions = base_questions + additional_questions
-
         form_id_file = f"form_id_{i}.txt"
         form_url = create_or_update_form(form_title, all_questions, form_id_file)
 
@@ -214,6 +258,7 @@ if __name__ == "__main__":
 
         form_data = {
             "url": form_url,
+            "title": form_title,
             "description": f"To jest formularz aplikacyjny na: {form_title}",
             "start_date": start_date.isoformat(),
             "end_date": end_date.isoformat(),
@@ -221,6 +266,9 @@ if __name__ == "__main__":
 
         jsonl.add(form_data, output_file)
         print(f"Appended data for '{form_title}' to {output_file}")
+
+        event_id_file = f"event_id_{i}.txt"
+        create_or_update_event(calendar_service, CALENDAR_ID, form_data, event_id_file)
 
     # Form for animal shelter
     form_title_shelter = "Wolontariat w schronisku dla zwierząt"
@@ -249,6 +297,7 @@ if __name__ == "__main__":
 
     form_data_shelter = {
         "url": form_url_shelter,
+        "title": form_title_shelter,
         "description": "To jest formularz dla wolontariuszy w schronisku dla zwierząt.",
         "start_date": start_date_shelter.isoformat(),
         "end_date": end_date_shelter.isoformat(),
@@ -256,3 +305,8 @@ if __name__ == "__main__":
 
     jsonl.add(form_data_shelter, output_file)
     print(f"Appended data for '{form_title_shelter}' to {output_file}")
+
+    event_id_file_shelter = "event_id_animal_shelter.txt"
+    create_or_update_event(
+        calendar_service, CALENDAR_ID, form_data_shelter, event_id_file_shelter
+    )
