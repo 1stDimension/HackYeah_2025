@@ -7,6 +7,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
+import jsonl
 
 # If modifying these SCOPES, delete the file token.json.
 SCOPES = ["https://www.googleapis.com/auth/forms.body"]
@@ -87,7 +88,6 @@ def create_or_update_form(title: str, bodies: list[dict[str, Any]], form_id_file
             
             form_service.forms().batchUpdate(formId=form_id, body={"requests": requests}).execute()
             
-            # print(f"Form updated successfully! View it at: {form['responderUri']}")
             return form['responderUri']
 
         except HttpError as e:
@@ -133,7 +133,6 @@ def create_or_update_form(title: str, bodies: list[dict[str, Any]], form_id_file
 
 if __name__ == "__main__":
     # Please install pytz and Faker if you haven't already: pip install pytz Faker
-    import json
     import random
     from datetime import datetime, timedelta
     import pytz
@@ -146,6 +145,11 @@ if __name__ == "__main__":
         {"title": "Ile masz lat?"},
         {"title": "Jaki jest Twój adres e-mail?", "required": True},
     ]
+
+    output_file = 'forms.jsonl'
+    # Clear the file at the beginning of the run
+    with open(output_file, 'w') as f:
+        pass
 
     for i in range(10):
         form_type = random.choice(["Wolontariat", "Staż"])
@@ -180,7 +184,8 @@ if __name__ == "__main__":
             "end_date": end_date.isoformat(),
         }
 
-        print(json.dumps(form_data, indent=4, ensure_ascii=False))
+        jsonl.add(form_data, output_file)
+        print(f"Appended data for '{form_title}' to {output_file}")
 
     # Form for animal shelter
     form_title_shelter = "Wolontariat w schronisku dla zwierząt"
@@ -205,4 +210,5 @@ if __name__ == "__main__":
         "end_date": end_date_shelter.isoformat(),
     }
 
-    print(json.dumps(form_data_shelter, indent=4, ensure_ascii=False))
+    jsonl.add(form_data_shelter, output_file)
+    print(f"Appended data for '{form_title_shelter}' to {output_file}")
