@@ -1,6 +1,7 @@
 
 import os
 from typing import Any
+from faker import Faker
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
@@ -132,10 +133,13 @@ def create_or_update_form(title: str, bodies: list[dict[str, Any]], form_id_file
         return new_form['responderUri']
 
 if __name__ == "__main__":
-    form_title = "My Awesome Form"
+
     fake_bodies = [
         {"title": "What is your name?", "required": True},
         {"title": "How old are you"},
         {"title": "What is your email address?", "required": True},
     ]
-    create_or_update_form(form_title, fake_bodies)
+    
+    for i in range(10):
+        form_title = f"My Awesome Form nr{i+1}"
+        url = create_or_update_form(form_title, fake_bodies)
