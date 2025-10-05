@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -306,6 +307,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="header">
         <button class="back-button">←</button>
@@ -323,17 +325,12 @@
 
         <h1>Cześć! Jakub</h1>
         <p class="description">
-            Wyszukuj wydarzenia, miejsca i informacje za pomocą zaawansowanego widgetu. 
+            Wyszukuj wydarzenia, miejsca i informacje za pomocą zaawansowanego widgetu.
             Kliknij w pole poniżej, aby rozpocząć.
         </p>
 
         <div class="search-container">
-            <input 
-                type="text" 
-                placeholder="Szukaj wydarzeń..." 
-                id="searchWidgetTrigger" 
-                readonly
-            />
+            <input type="text" placeholder="Szukaj wydarzeń..." id="searchWidgetTrigger" readonly />
         </div>
 
         <div class="info-section">
@@ -361,15 +358,13 @@
     </div>
 
     <footer class="footer">
-        <p>Obsługiwane przez <a href="https://cloud.google.com/generative-ai-app-builder" target="_blank">Google Gen App Builder</a></p>
+        <p>Obsługiwane przez <a href="https://cloud.google.com/generative-ai-app-builder" target="_blank">Google Gen App
+                Builder</a></p>
     </footer>
 
     <script src="https://cloud.google.com/ai/gen-app-builder/client?hl=en_US"></script>
 
-    <gen-search-widget
-        configId="c59c27ad-6337-4414-8b84-ce8ee9e9c69f"
-        location="eu"
-        triggerId="searchWidgetTrigger">
+    <gen-search-widget configId="c59c27ad-6337-4414-8b84-ce8ee9e9c69f" location="eu" triggerId="searchWidgetTrigger">
     </gen-search-widget>
 
     <script>
@@ -387,7 +382,7 @@
 
         themeToggle.addEventListener('click', () => {
             body.classList.toggle('dark-mode');
-            
+
             if (body.classList.contains('dark-mode')) {
                 themeToggle.textContent = '☀️';
                 localStorage.setItem('theme', 'dark');
@@ -397,5 +392,27 @@
             }
         });
     </script>
+    <link rel="stylesheet"
+        href="https://www.gstatic.com/dialogflow-console/fast/df-messenger/prod/v1/themes/df-messenger-default.css">
+    <script src="https://www.gstatic.com/dialogflow-console/fast/df-messenger/prod/v1/df-messenger.js"></script>
+    <df-messenger location="europe-west1" project-id="hackyeah2025-474106"
+        agent-id="d5396c7f-29a4-4f30-969b-bafb100e4ce3" language-code="pl" max-query-length="-1">
+        <df-messenger-chat-bubble chat-title="ai_assitant_events_txt">
+        </df-messenger-chat-bubble>
+    </df-messenger>
+    <style>
+        df-messenger {
+            z-index: 999;
+            position: fixed;
+            --df-messenger-font-color: #000;
+            --df-messenger-font-family: Google Sans;
+            --df-messenger-chat-background: #f3f6fc;
+            --df-messenger-message-user-background: #d3e3fd;
+            --df-messenger-message-bot-background: #fff;
+            bottom: 16px;
+            right: 16px;
+        }
+    </style>
 </body>
+
 </html>
