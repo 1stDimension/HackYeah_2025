@@ -12,153 +12,351 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f8f9fa;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 2rem;
+            padding: 1rem;
+            transition: background 0.3s ease;
+        }
+
+        body.dark-mode {
+            background: #1a1a1a;
+        }
+
+        .header {
+            width: 100%;
+            max-width: 480px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .back-button {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #333;
+            padding: 0.5rem;
+            transition: color 0.3s ease;
+        }
+
+        .dark-mode .back-button {
+            color: #e0e0e0;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.3rem;
+            padding: 0.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
         }
 
         .container {
             background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            padding: 3rem;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            padding: 1.5rem;
             width: 100%;
-            max-width: 600px;
-            margin-top: 2rem;
+            max-width: 480px;
+            transition: all 0.3s ease;
+        }
+
+        .dark-mode .container {
+            background: #2d2d2d;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #e8e8e8;
+        }
+
+        .dark-mode .logo-section {
+            border-bottom-color: #404040;
+        }
+
+        .logo {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #4285f4 0%, #34a853 50%, #fbbc04 75%, #ea4335 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .logo-text {
+            flex: 1;
+        }
+
+        .logo-title {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #202124;
+            margin-bottom: 0.25rem;
+            transition: color 0.3s ease;
+        }
+
+        .dark-mode .logo-title {
+            color: #e8eaed;
+        }
+
+        .logo-subtitle {
+            font-size: 0.85rem;
+            color: #5f6368;
+            transition: color 0.3s ease;
+        }
+
+        .dark-mode .logo-subtitle {
+            color: #9aa0a6;
         }
 
         h1 {
-            color: #333;
-            margin-bottom: 1rem;
-            text-align: center;
-            font-size: 2rem;
+            color: #202124;
+            margin-bottom: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: 400;
+            transition: color 0.3s ease;
+        }
+
+        .dark-mode h1 {
+            color: #e8eaed;
         }
 
         .description {
-            color: #666;
-            text-align: center;
-            margin-bottom: 2rem;
-            line-height: 1.6;
+            color: #5f6368;
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+            font-size: 0.95rem;
+            transition: color 0.3s ease;
+        }
+
+        .dark-mode .description {
+            color: #9aa0a6;
         }
 
         .search-container {
             position: relative;
-            margin: 2rem 0;
+            margin: 1.5rem 0;
         }
 
         #searchWidgetTrigger {
             width: 100%;
-            padding: 1rem 1.5rem;
-            font-size: 1rem;
-            border: 2px solid #e1e4e8;
-            border-radius: 50px;
+            padding: 0.875rem 1rem;
+            font-size: 0.95rem;
+            border: 1px solid #dadce0;
+            border-radius: 24px;
             outline: none;
-            transition: all 0.3s ease;
-            background: #f6f8fa;
+            transition: all 0.2s ease;
+            background: #f8f9fa;
+            color: #202124;
+            font-family: inherit;
+        }
+
+        .dark-mode #searchWidgetTrigger {
+            background: #303134;
+            border-color: #5f6368;
+            color: #e8eaed;
         }
 
         #searchWidgetTrigger:focus {
-            border-color: #667eea;
+            border-color: #4285f4;
             background: white;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            box-shadow: 0 1px 6px rgba(66, 133, 244, 0.2);
+        }
+
+        .dark-mode #searchWidgetTrigger:focus {
+            background: #3c4043;
+            box-shadow: 0 1px 6px rgba(66, 133, 244, 0.4);
         }
 
         #searchWidgetTrigger:hover {
-            border-color: #764ba2;
+            border-color: #b8bdc3;
             background: white;
         }
 
+        .dark-mode #searchWidgetTrigger:hover {
+            border-color: #7a7d81;
+            background: #3c4043;
+        }
+
         .info-section {
-            margin-top: 3rem;
-            padding-top: 2rem;
-            border-top: 1px solid #e1e4e8;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e8e8e8;
+            transition: border-color 0.3s ease;
+        }
+
+        .dark-mode .info-section {
+            border-top-color: #404040;
         }
 
         .info-title {
-            color: #333;
-            font-size: 1.2rem;
+            color: #202124;
+            font-size: 1rem;
             margin-bottom: 1rem;
-            font-weight: 600;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .dark-mode .info-title {
+            color: #e8eaed;
         }
 
         .info-list {
             list-style: none;
-            color: #666;
+            color: #5f6368;
+            transition: color 0.3s ease;
+        }
+
+        .dark-mode .info-list {
+            color: #9aa0a6;
         }
 
         .info-list li {
-            padding: 0.5rem 0;
-            padding-left: 1.5rem;
+            padding: 0.625rem 0;
+            padding-left: 1.75rem;
             position: relative;
+            font-size: 0.9rem;
+            line-height: 1.5;
         }
 
         .info-list li:before {
-            content: "→";
+            content: "•";
             position: absolute;
-            left: 0;
-            color: #667eea;
+            left: 0.5rem;
+            color: #4285f4;
             font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .feature-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .dark-mode .feature-card {
+            background: #3c4043;
+        }
+
+        .feature-card:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .dark-mode .feature-card:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
         }
 
         .footer {
-            margin-top: 3rem;
+            margin-top: 2rem;
             text-align: center;
-            color: white;
-            font-size: 0.9rem;
+            color: #5f6368;
+            font-size: 0.85rem;
+            max-width: 480px;
+            transition: color 0.3s ease;
+        }
+
+        .dark-mode .footer {
+            color: #9aa0a6;
         }
 
         .footer a {
-            color: white;
+            color: #4285f4;
             text-decoration: none;
-            font-weight: 600;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-            transition: border-color 0.3s ease;
+            font-weight: 500;
+            transition: opacity 0.3s ease;
         }
 
         .footer a:hover {
-            border-bottom-color: white;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 0.5rem;
+            }
+
+            .container {
+                padding: 1.25rem;
+            }
+
+            h1 {
+                font-size: 1.3rem;
+            }
         }
     </style>
 </head>
 <body>
+    <div class="header">
+        <button class="back-button">←</button>
+        <button class="theme-toggle" id="themeToggle">🌙</button>
+    </div>
+
     <div class="container">
-        <h1>🔍 Cyfrowe Centrum Wolontariatu</h1>
+        <div class="logo-section">
+            <div class="logo">🔍</div>
+            <div class="logo-text">
+                <div class="logo-title">Widget Wyszukiwania</div>
+                <div class="logo-subtitle">Google Gen App Builder</div>
+            </div>
+        </div>
+
+        <h1>Cześć! Jakub</h1>
         <p class="description">
-            To demo integruje Widget Wyszukiwania Google Gen App Builder. 
-            Kliknij na pole wyszukiwania poniżej, aby aktywować widget.
+            Wyszukuj wydarzenia, miejsca i informacje za pomocą zaawansowanego widgetu. 
+            Kliknij w pole poniżej, aby rozpocząć.
         </p>
 
         <div class="search-container">
-            <!-- Pole uruchamiające widget wyszukiwania -->
             <input 
                 type="text" 
-                placeholder="Kliknij tutaj, aby wyszukać..." 
+                placeholder="Szukaj wydarzeń..." 
                 id="searchWidgetTrigger" 
                 readonly
             />
         </div>
 
         <div class="info-section">
-            <h2 class="info-title">Jak to działa:</h2>
-            <ul class="info-list">
-                <li>Widget wyszukiwania jest załadowany, ale domyślnie ukryty</li>
-                <li>Kliknięcie w pole tekstowe powoduje wyświetlenie widgetu</li>
-                <li>Widget łączy się z usługą Google Gen App Builder</li>
-                <li>Wyniki wyszukiwania są obsługiwane przez skonfigurowaną wyszukiwarkę</li>
-            </ul>
+            <h2 class="info-title">Jak to działa</h2>
+            <div class="feature-card">
+                <ul class="info-list">
+                    <li>Natychmiastowe wyniki wyszukiwania</li>
+                    <li>Integracja z Google Cloud</li>
+                    <li>Wsparcie dla regionu EU</li>
+                    <li>Bezpieczne i szybkie odpowiedzi</li>
+                </ul>
+            </div>
         </div>
 
         <div class="info-section">
-            <h2 class="info-title">Konfiguracja widgetu:</h2>
-            <ul class="info-list">
-                <li>ID konfiguracji: c59c27ad-6337-4414-8b84-ce8ee9e9c69f</li>
-                <li>Lokalizacja: region EU</li>
-                <li>Wyzwalacz: element #searchWidgetTrigger</li>
-            </ul>
+            <h2 class="info-title">Szczegóły techniczne</h2>
+            <div class="feature-card">
+                <ul class="info-list">
+                    <li>Config ID: c59c27ad-6337-4414-8b84-ce8ee9e9c69f</li>
+                    <li>Region: Europa (EU)</li>
+                    <li>Status: Aktywny</li>
+                </ul>
+            </div>
         </div>
     </div>
 
@@ -166,14 +364,38 @@
         <p>Obsługiwane przez <a href="https://cloud.google.com/generative-ai-app-builder" target="_blank">Google Gen App Builder</a></p>
     </footer>
 
-    <!-- JavaScript Widget Wyszukiwania Google Gen App Builder -->
     <script src="https://cloud.google.com/ai/gen-app-builder/client?hl=en_US"></script>
 
-    <!-- Element widgetu wyszukiwania (domyślnie ukryty) -->
     <gen-search-widget
         configId="c59c27ad-6337-4414-8b84-ce8ee9e9c69f"
         location="eu"
         triggerId="searchWidgetTrigger">
     </gen-search-widget>
+
+    <script>
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+
+        // Sprawdź zapisany motyw
+        const savedTheme = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+        if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+            body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️';
+        }
+
+        themeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            
+            if (body.classList.contains('dark-mode')) {
+                themeToggle.textContent = '☀️';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                themeToggle.textContent = '🌙';
+                localStorage.setItem('theme', 'light');
+            }
+        });
+    </script>
 </body>
 </html>
