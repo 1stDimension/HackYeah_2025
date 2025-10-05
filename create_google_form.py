@@ -148,7 +148,7 @@ def create_or_update_form(
 
 
 def create_or_update_event(calendar_service, calendar_id, event_data, event_id_file):
-    """Creates a new Google Calendar event or updates an existing one."""
+    """Creates a new Google Calendar event or updates an existing one and returns its ID."""
     event_id = None
     if os.path.exists(event_id_file):
         with open(event_id_file, "r") as f:
@@ -175,6 +175,7 @@ def create_or_update_event(calendar_service, calendar_id, event_data, event_id_f
                 .execute()
             )
             print(f"Event {updated_event['id']} updated.")
+            return updated_event["id"]
         else:
             new_event = (
                 calendar_service.events()
@@ -185,6 +186,7 @@ def create_or_update_event(calendar_service, calendar_id, event_data, event_id_f
             with open(event_id_file, "w") as f:
                 f.write(event_id)
             print(f"Event {event_id} created.")
+            return event_id
     except HttpError as e:
         if e.resp.status == 404:
             print("Event not found, creating a new one.")
@@ -197,6 +199,7 @@ def create_or_update_event(calendar_service, calendar_id, event_data, event_id_f
             with open(event_id_file, "w") as f:
                 f.write(event_id)
             print(f"Event {event_id} created.")
+            return event_id
         else:
             raise e
 
@@ -217,6 +220,8 @@ if __name__ == "__main__":
     output_file = "forms.jsonl"
     with open(output_file, "w") as f:
         pass
+
+    created_event_ids = []
 
     for i in range(10):
         form_type = random.choice(["Wolontariat", "Staż"])
@@ -268,7 +273,11 @@ if __name__ == "__main__":
         print(f"Appended data for '{form_title}' to {output_file}")
 
         event_id_file = f"event_id_{i}.txt"
-        create_or_update_event(calendar_service, CALENDAR_ID, form_data, event_id_file)
+        event_id = create_or_update_event(
+            calendar_service, CALENDAR_ID, form_data, event_id_file
+        )
+        if event_id:
+            created_event_ids.append(event_id)
 
     # Form for animal shelter
     form_title_shelter = "Wolontariat w schronisku dla zwierząt"
@@ -307,6 +316,37 @@ if __name__ == "__main__":
     print(f"Appended data for '{form_title_shelter}' to {output_file}")
 
     event_id_file_shelter = "event_id_animal_shelter.txt"
-    create_or_update_event(
+    event_id_shelter = create_or_update_event(
         calendar_service, CALENDAR_ID, form_data_shelter, event_id_file_shelter
     )
+    if event_id_shelter:
+        created_event_ids.append(event_id_shelter)
+
+    # Add attendee to all created events
+    attendee_email = "enter@example.com"
+    print(f"\nAdding {attendee_email} to all created events...")
+    for event_id in created_event_ids:
+        if not event_id:
+            continue
+        try:
+            event = (
+                calendar_service.events()
+                .get(calendarId=CALENDAR_ID, eventId=event_id)
+                .execute()
+            )
+            attendees = event.get("attendees", [])
+            # Check if attendee already exists
+            if not any(att["email"] == attendee_email for att in attendees):
+                attendees.append({"email": attendee_email})
+                body = {"attendees": attendees}
+                calendar_service.events().patch(
+                    calendarId=CALENDAR_ID,
+                    eventId=event_id,
+                    body=body,
+                    sendUpdates="all",
+                ).execute()
+                print(f"  - Added attendee to event {event_id}")
+            else:
+                print(f"  - Attendee already exists in event {event_id}")
+        except HttpError as e:
+            print(f"  - Failed to add attendee to event {event_id}: {e}")
